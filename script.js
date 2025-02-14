@@ -78,9 +78,13 @@ function updateFormFromState() {
   // Clear existing containers
   experienceContainer.innerHTML = '';
   educationContainer.innerHTML = '';
+  console.log(skillsContainer)
   skillsContainer.innerHTML = '';
 
   // Render all sections
+  console.log(state.experience);
+  console.log(state.education);
+  console.log(state.skills);
   state.experience.forEach(exp => addExperience(exp));
   state.education.forEach(edu => addEducation(edu));
   state.skills.forEach(skill => addSkill(skill));
@@ -219,15 +223,29 @@ function handleEducationRemove(e) {
 function addSkill(skill = '') {
   const skillDiv = document.createElement('div');
   skillDiv.className = 'skill-item';
+
   const index = state.skills.length;
+
+  //Assign index based on repeating number that goes up to 100/1000 maybe? Basing it off of the length means it gets
+  //re-estbalished whenever the application is re-loaded, because when its initially created its length is 0.
+  //However, when the page is refreshed, it checks the length again and re-assigns the index based on that. 
+  //This causes the delete function to never work after the first reload, because its not targeting the right index. 
+  //The way this needs to be fixed is that the index dosen't need to be a built in attribute, as by it being inside of a list, it has an index. 
 
   skillDiv.innerHTML = `
       <input type="text" class="skill-input" data-index="${index}" value="${skill}">
       <button type="button" class="btn-danger remove-skill" data-index="${index}">×</button>
   `;
 
+  //   skillDiv.innerHTML = `
+  //     <input type="text" class="skill-input" value="${skill}">
+  //     <button type="button" class="btn-danger remove-skill">×</button>
+  // `;
+
+
   skillsContainer.appendChild(skillDiv);
 
+  //This checks if the skill is blank and then adds it into the state. 
   if (!skill) {
       state.skills.push('');
       saveState();
@@ -251,7 +269,13 @@ function handleSkillInput(e) {
 
 function handleSkillRemove(e) {
   const index = parseInt(e.target.dataset.index);
+  console.log("This is the index of the skill trying to be removed according to the index: " + index)
+  //The issue that is happening is that splice isn't hitting the correct index to remove. 
+  //Its not actually reading from the list becuase the list starts at zero
+  //The bug fix for this section is to change the index targeting to be the actual index of the list.
+  
   state.skills.splice(index, 1);
+
   saveState();
   updateFormFromState();
 }
